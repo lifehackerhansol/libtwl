@@ -124,12 +124,12 @@ void rtc_init(void)
         status1 |= RTC_STATUS1_RESET;
         rtc_writeStatus1(status1);
     }
-    if (status1 & (RTC_STATUS1_INT1 | RTC_STATUS1_INT2))
-    {
-        status2 &= ~(RTC_STATUS2_INT1FE | RTC_STATUS2_INT1ME | RTC_STATUS2_INT1AE | RTC_STATUS2_32KE);
-        status2 &= ~RTC_STATUS2_INT2AE;
-        rtc_writeStatus2(status2);
-    }
+
+    // disable all rtc irqs
+    status2 &= ~(RTC_STATUS2_INT1FE | RTC_STATUS2_INT1ME | RTC_STATUS2_INT1AE | RTC_STATUS2_32KE);
+    status2 &= ~RTC_STATUS2_INT2AE;
+    rtc_writeStatus2(status2);
+
     if (!(status1 & RTC_STATUS1_24HOUR))
     {
         status1 |= RTC_STATUS1_24HOUR;
