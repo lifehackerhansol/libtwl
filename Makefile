@@ -1,31 +1,51 @@
-#---------------------------------------------------------------------------------
-.SUFFIXES:
-#---------------------------------------------------------------------------------
-ifeq ($(strip $(DEVKITARM)),)
-$(error "Please set DEVKITARM in your environment. export DEVKITARM=<path to>devkitARM")
+# SPDX-License-Identifier: CC0-1.0
+#
+# SPDX-FileContributor: Antonio Niño Díaz, 2023
+
+BLOCKSDS	?= /opt/blocksds/core
+BLOCKSDSEXT	?= /opt/blocksds/external
+
+# Build artifacts
+# ---------------
+
+INSTALLNAME	:= libtwl
+
+# Tools
+# -----
+
+MAKE		:= make
+RM		:= rm -rf
+CP		:= cp
+INSTALL	:= install
+
+# Verbose flag
+# ------------
+
+ifeq ($(VERBOSE),1)
+V		:=
+else
+V		:= @
 endif
 
-export TARGET	:=	$(shell basename $(CURDIR))
-export TOPDIR	:=	$(CURDIR)
+# Targets
+# -------
 
-include $(DEVKITARM)/ds_rules
+.PHONY: all arm7 arm9 clean install
 
-.PHONY: check9 check7 clean
+all: arm9 arm7
 
-#---------------------------------------------------------------------------------
-# main targets
-#---------------------------------------------------------------------------------
-all: check9 check7
+arm9:
+	@+$(MAKE) -f Makefile.arm9 --no-print-directory
 
-#---------------------------------------------------------------------------------
-check9:
-	$(MAKE) -C libtwl9
+arm7:
+	@+$(MAKE) -f Makefile.arm7 --no-print-directory
 
-#---------------------------------------------------------------------------------
-check7:
-	$(MAKE) -C libtwl7
-
-#---------------------------------------------------------------------------------
 clean:
-	$(MAKE) -C libtwl9 clean
-	$(MAKE) -C libtwl7 clean
+	@echo "  CLEAN"
+	@$(RM) $(VERSION_HEADER) lib build
+
+install: all
+	@echo "  INSTALL $(BLOCKSDSEXT)/$(INSTALLNAME)/"
+	$(V)$(RM) $(BLOCKSDSEXT)/$(INSTALLNAME)/
+	$(V)$(INSTALL) -d $(BLOCKSDSEXT)/$(INSTALLNAME)/
+	$(V)$(CP) -r include lib $(BLOCKSDSEXT)/$(INSTALLNAME)/
